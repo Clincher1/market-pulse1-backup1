@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowUpCircle,
@@ -7,7 +8,8 @@ import {
   Target,
   ShieldQuestion,
 } from 'lucide-react';
-import { forecasts, ForecastData } from '@/data/mockData';
+import { ForecastData } from '@/data/mockData';
+import { fetchLiveForecasts } from '@/data/liveForecasts';
 
 function confidenceColor(confidence: string): string {
   if (confidence === 'Высокая') return 'text-positive';
@@ -119,6 +121,18 @@ function ForecastCard({ forecast, index }: { forecast: ForecastData; index: numb
 }
 
 export default function Forecasts() {
+  const [forecasts, setForecasts] = useState<ForecastData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const live = await fetchLiveForecasts();
+      setForecasts(live);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
   return (
     <motion.section
       id="forecasts"
@@ -132,11 +146,17 @@ export default function Forecasts() {
         <h2 className="text-xl lg:text-2xl font-bold tracking-tight">Прогнозы</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
-        {forecasts.map((f, i) => (
-          <ForecastCard key={f.id} forecast={f} index={i} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="text-center py-16 text-text-secondary animate-pulse">
+          Загрузка прогнозов...
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5">
+          {forecasts.map((f, i) => (
+            <ForecastCard key={f.id} forecast={f} index={i} />
+          ))}
+        </div>
+      )}
 
       {/* Disclaimer */}
       <motion.div
