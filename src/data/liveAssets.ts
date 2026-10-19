@@ -17,11 +17,30 @@ export async function fetchLiveAssets(): Promise<AssetData[]> {
     }
 
     const order = ['usd-eur', 'sp500', 'brent', 'gold', 'btc'];
-    
-    // Возвращаем данные как есть, так как сервер уже применил коэффициенты
-    return order
+    const sortedData = order
       .map(id => data.find(d => d.id === id))
       .filter(Boolean) as AssetData[];
+
+    // УМНОЖАЕМ ПРЯМО ЗДЕСЬ
+    return sortedData.map(asset => {
+      if (asset.id === 'sp500') {
+        const rawPrice = parseFloat(asset.price.replace(/,/g, ''));
+        return {
+          ...asset,
+          price: (rawPrice * 10).toLocaleString('en-US', { maximumFractionDigits: 0 }),
+          sparkline: asset.sparkline.map(v => v * 10),
+        };
+      }
+      if (asset.id === 'gold') {
+        const rawPrice = parseFloat(asset.price.replace('$', '').replace(/,/g, ''));
+        return {
+          ...asset,
+          price: '$' + (rawPrice * 10).toLocaleString('en-US', { maximumFractionDigits: 0 }),
+          sparkline: asset.sparkline.map(v => v * 10),
+        };
+      }
+      return asset;
+    });
   } catch (e) {
     console.error('Ошибка загрузки кэша:', e);
     return [];
