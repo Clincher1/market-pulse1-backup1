@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Flame, Snowflake, Thermometer } from 'lucide-react';
 import {
-  LineChart,
   XAxis,
   YAxis,
   Tooltip,
@@ -37,7 +36,9 @@ export default function TensionScale() {
   }, []);
 
   const value = data.current;
-  const markerPosition = `${value}%`;
+  
+  // Исправленная позиция маркера: сдвигаем на 1.5, чтобы он попадал в нужную цветовую зону
+  const markerPosition = `${Math.min(100, Math.max(0, value * 1.5))}%`;
 
   const getStatusIcon = () => {
     if (value < 30) return <Snowflake className="w-5 h-5 text-blue-400" />;
