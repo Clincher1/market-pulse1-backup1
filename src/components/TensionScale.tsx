@@ -1,8 +1,8 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, Flame, Snowflake, Thermometer } from 'lucide-react';
 import {
   LineChart,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -10,10 +10,33 @@ import {
   Area,
   AreaChart,
 } from 'recharts';
-import { tensionData } from '@/data/mockData';
+import { tensionData as fallbackData } from '@/data/mockData';
+import { fetchLiveTension } from '@/data/liveTension';
 
 export default function TensionScale() {
-  const value = tensionData.current;
+  const [data, setData] = useState(fallbackData);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function load() {
+      const live = await fetchLiveTension();
+      if (isMounted && live) {
+        setData(live);
+      }
+      if (isMounted) setLoading(false);
+    }
+
+    load();
+    const interval = setInterval(load, 300_000); // Обновляем каждые 5 минут
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  const value = data.current;
   const markerPosition = `${value}%`;
 
   const getStatusIcon = () => {
@@ -38,7 +61,13 @@ export default function TensionScale() {
         </h2>
       </div>
 
-      <div className="bg-bg-card rounded-xl2 p-6 lg:p-8 border border-border-subtle shadow-xl">
+      <div className="bg-bg-card rounded-xl2 p-6 lg:p-8 border border-border-subtle shadow-xl relative">
+        {loading && (
+          <div className="absolute inset-0 bg-bg-card/80 flex items-center justify-center z-10 rounded-xl2">
+            <span className="text-text-secondary animate-pulse">Загрузка индекса...</span>
+          </div>
+        )}
+
         {/* Current value display */}
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
@@ -48,8 +77,8 @@ export default function TensionScale() {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 {getStatusIcon()}
-                <span className="text-lg font-semibold text-yellow-400">
-                  {tensionData.label}
+                <span className={`text-lg font-semibold ${value < 30 ? 'text-blue-400' : value < 70 ? 'text-yellow-400' : 'text-red-400'}`}>
+                  {data.label}
                 </span>
               </div>
               <span className="text-sm text-text-secondary">из 100</span>
@@ -97,7 +126,7 @@ export default function TensionScale() {
             Изменение за последние 7 дней
           </div>
           <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={tensionData.history} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
+            <AreaChart data={data.history.length > 0 ? data.history : fallbackData.history} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
               <defs>
                 <linearGradient id="tensionGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#F59E0B" stopOpacity={0.3} />
@@ -116,7 +145,7 @@ export default function TensionScale() {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                domain={[40, 80]}
+                domain={[0, 100]}
                 width={30}
               />
               <Tooltip
@@ -145,7 +174,7 @@ export default function TensionScale() {
         <div className="mt-6 pt-5 border-t border-border-subtle text-sm text-text-secondary">
           На основе анализа{' '}
           <span className="text-text-primary font-semibold">
-            {tensionData.newsCount.toLocaleString('ru-RU')}
+            {data.newsCount.toLocaleString('ru-RU')}
           </span>{' '}
           новостей за сутки
         </div>
