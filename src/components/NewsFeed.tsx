@@ -36,6 +36,18 @@ function sentimentMatches(item: number, filter: string): boolean {
   return true;
 }
 
+// УМНОЕ ВРЕМЯ
+function formatTime(published_at: string | null | undefined): string {
+  if (!published_at) return 'Неизвестно';
+  const diffMs = Date.now() - new Date(published_at).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 60) return `${diffMins} мин назад`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours} ч назад`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} дн назад`;
+}
+
 function NewsCard({ item, index }: { item: NewsItem; index: number }) {
   return (
     <motion.article
@@ -53,7 +65,7 @@ function NewsCard({ item, index }: { item: NewsItem; index: number }) {
           </span>
           <span className="text-xs text-text-secondary flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            {item.time}
+            {formatTime(item.published_at)}
           </span>
         </div>
       </div>
@@ -124,6 +136,9 @@ export default function NewsFeed() {
 
   const filteredNews = useMemo(() => {
     return liveNews.filter((item) => {
+      // СКРЫВАЕМ МУСОР (важность < 3)
+      if (item.importance < 3) return false;
+
       const sourceMatch =
         filters.source === 'Все источники' || item.source === filters.source;
       const topicMatch = filters.topic === 'Все темы' || item.topic === filters.topic;
