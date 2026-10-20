@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, TrendingDown, Filter, Clock, Gauge, Heart, ExternalLink } from 'lucide-react';
+import { TrendingUp, TrendingDown, Filter, Clock, Gauge, Heart, ExternalLink, ShieldQuestion } from 'lucide-react';
 import {
   newsSources,
   newsTopics,
@@ -121,6 +121,15 @@ function NewsCard({ item, index }: { item: NewsItem; index: number }) {
           <span className="text-xs text-text-secondary">Важность:</span>
           <span className={`text-xs font-bold ${importanceColor(item.importance)}`}>
             {item.importance}/10
+          </span>
+        </div>
+
+        {/* УВЕРЕННОСТЬ ИИ */}
+        <div className="flex items-center gap-1.5">
+          <ShieldQuestion className="w-3.5 h-3.5 text-text-secondary" />
+          <span className="text-xs text-text-secondary">Уверенность:</span>
+          <span className={`text-xs font-bold ${(item.confidence ?? 0.5) > 0.7 ? 'text-positive' : (item.confidence ?? 0.5) > 0.4 ? 'text-warning' : 'text-negative'}`}>
+            {Math.round((item.confidence ?? 0.5) * 100)}%
           </span>
         </div>
       </div>
