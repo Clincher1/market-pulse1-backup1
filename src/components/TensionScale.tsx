@@ -37,7 +37,7 @@ export default function TensionScale() {
 
   const value = data.current;
   
-  // Исправленная позиция маркера: сдвигаем на 1.5, чтобы он попадал в нужную цветовую зону
+  // Исправленная позиция маркера
   const markerPosition = `${Math.min(100, Math.max(0, value * 1.5))}%`;
 
   const getStatusIcon = () => {
@@ -123,8 +123,16 @@ export default function TensionScale() {
 
         {/* 7-day chart */}
         <div className="mt-6">
-          <div className="text-sm text-text-secondary mb-3 font-medium">
-            Изменение за последние 7 дней
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm text-text-secondary font-medium">
+              Изменение за последние 7 дней
+            </div>
+            {/* ЧЕСТНАЯ ПОДПИСЬ */}
+            {data.history.length < 7 && (
+              <div className="text-xs text-warning font-medium">
+                Накоплено {data.history.length} из 7 дней
+              </div>
+            )}
           </div>
           <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={data.history.length > 0 ? data.history : fallbackData.history} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>

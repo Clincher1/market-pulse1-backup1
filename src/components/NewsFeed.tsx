@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TrendingUp, TrendingDown, Filter, Clock, Gauge, Heart } from 'lucide-react';
+import { TrendingUp, TrendingDown, Filter, Clock, Gauge, Heart, ExternalLink } from 'lucide-react';
 import {
   newsSources,
   newsTopics,
@@ -70,9 +70,18 @@ function NewsCard({ item, index }: { item: NewsItem; index: number }) {
         </div>
       </div>
 
-      <h3 className="text-base lg:text-lg font-bold leading-snug mb-3 text-text-primary">
-        {item.title}
-      </h3>
+      {/* КЛИКАБЕЛЬНЫЙ ЗАГОЛОВОК */}
+      <a 
+        href={item.url || '#'} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="group block mb-3"
+      >
+        <h3 className="text-base lg:text-lg font-bold leading-snug text-text-primary group-hover:text-accent transition-colors">
+          {item.title}
+          <ExternalLink className="inline-block w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </h3>
+      </a>
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <span className="text-xs text-text-secondary font-medium">Влияние:</span>
