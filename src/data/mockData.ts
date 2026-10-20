@@ -23,8 +23,11 @@ export interface NewsItem {
   impacts: { asset: string; direction: 'up' | 'down' }[];
   sentiment: number;
   importance: number;
+  confidence?: number; // <-- ДОБАВИЛИ
   summary: string;
   topic: string;
+  url?: string;        // <-- ДОБАВИЛИ
+  published_at?: string; // <-- ДОБАВИЛИ
 }
 
 export interface ForecastData {
@@ -32,9 +35,10 @@ export interface ForecastData {
   asset: string;
   direction: 'up' | 'down';
   probability: number;
-  window: string;
+  time_window: string; // <-- ПЕРЕИМЕНОВАЛИ из window
   confidence: 'Низкая' | 'Средняя' | 'Высокая';
   reason: string;
+  updated_at?: string;
 }
 
 // Mock data
@@ -92,7 +96,7 @@ export const assets: AssetData[] = [
   },
 ];
 
-export const newsSources = ['Все источники', 'Reuters', 'Bloomberg', 'BBC', 'CNBC', 'РБК'];
+export const newsSources = ['Все источники', 'Reuters', 'Bloomberg', 'BBC', 'CNBC', 'РБК', 'MarketWatch', 'GDELT (Global)'];
 export const newsTopics = ['Все темы', 'Экономика', 'Геополитика', 'Энергетика', 'Технологии', 'Финансы'];
 export const newsSentiments = ['Любая', 'Позитивная', 'Нейтральная', 'Негативная'];
 
@@ -247,7 +251,7 @@ export const forecasts: ForecastData[] = [
     asset: 'USD/EUR',
     direction: 'up',
     probability: 72,
-    window: '1–3 дня',
+    time_window: '1–3 дня',
     confidence: 'Средняя',
     reason: '8 из 10 похожих событий в прошлом дали рост',
   },
@@ -256,7 +260,7 @@ export const forecasts: ForecastData[] = [
     asset: 'Brent',
     direction: 'up',
     probability: 65,
-    window: '1–7 дней',
+    time_window: '1–7 дней',
     confidence: 'Средняя',
     reason: 'Сокращение добычи ОПЕК+ исторически даёт рост',
   },
@@ -265,7 +269,7 @@ export const forecasts: ForecastData[] = [
     asset: 'BTC',
     direction: 'down',
     probability: 58,
-    window: '1–3 дня',
+    time_window: '1–3 дня',
     confidence: 'Низкая',
     reason: 'Рост ставки ФРС давит на рисковые активы',
   },
